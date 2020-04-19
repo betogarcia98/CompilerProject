@@ -1,0 +1,3 @@
+int hola (2)
+void adios [100];
+void nocierto;
