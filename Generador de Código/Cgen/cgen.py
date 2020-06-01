@@ -156,7 +156,7 @@ def recursiveCGen(tree, imprime = True):
             f.write("addiu $sp $sp 4\n")
         elif tree.expType == ExpTipo.ARREGLO:
             checkChild = False
-            f.write("#Aqui1\n")
+            # f.write("#Aqui1\n")
             node = getNode(tree.child[0].str,tree.lineno)
             if tree.child[1].expType == ExpTipo.CONST:
                 index = tree.child[1].val    
@@ -171,7 +171,7 @@ def recursiveCGen(tree, imprime = True):
                 f.write("lw $a0 "+str(ls)+"($t3)\n")
                 f.write("sub $t3 $t3 $t1\n")
                 # f.write("sub $t3 $t3 "+str(ls)+"\n")
-            f.write("#Aqui2\n")
+            # f.write("#Aqui2\n")
                 
     elif tree.nType == TipoNodo.STMT:
         if tree.stmtType == StmtTipo.IF or tree.stmtType == StmtTipo.WHILE:
