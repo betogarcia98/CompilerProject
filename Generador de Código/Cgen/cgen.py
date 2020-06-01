@@ -251,10 +251,6 @@ def recursiveCGen(tree, imprime = True):
                         paramToCompare = paramToCompare[:nodo.funObj.numParam]
                 aux_tree = tree.child[1]        
                 for param in paramToCompare:
-                    # if aux_tree.type == OpTipo.ARRAY and aux_tree.child[0] != None:
-                    #     aux_tree.type = OpTipo.INTEGER
-                    #Buscar en la tabla de símbolos la definicion del parámetro del programa que está a punto
-                    #de ser comprardo, ya que puede estar definida como arreglo aunque solo sea un identificador
                     
                     if param.arrayObj != None:          #Si el parametro debe ser un arreglo
                         this = SymTabObj("",0,"")
