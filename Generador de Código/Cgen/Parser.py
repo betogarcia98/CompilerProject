@@ -231,7 +231,7 @@ def declaration():
     if tokenType == TokenType.ENDFILE:
         return t
     if(tokenType==TokenType.INT) or (tokenType==TokenType.VOID):
-        t = nuevoDecNodo(DecTipo.FUNCION)
+        t = nuevoDecNodo(DecTipo.VARIABLE)
         t.str = tipo = tokenString
         t.op = tokenType
         if(tokenType==TokenType.INT):
