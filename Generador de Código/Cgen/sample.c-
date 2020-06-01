@@ -1,4 +1,4 @@
-int sumar(int x){
+int sumar(int x[]){
     int a;
     if(x==0){
         return 0;
@@ -13,8 +13,8 @@ int sumar(int x){
 
 void main(void)
 {   
-    int i;
-    i= sumar(5);
+    int i[10];
+    i= sumar(i);
     output(i);
     
 }
