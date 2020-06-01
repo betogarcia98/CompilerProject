@@ -39,9 +39,26 @@ PalabrasReservadas = ["else","if","int","return","void","while"]
 #Conjuto de estados terminales
 EstadosTerminal = [1,2,3,6,8,10,12,13,14,15,16,17,18,19,20,25,26,27,28,29,30,32,33,34]     
 #Conjunto de estados finales que solo procesan un cáracter
-EstadosTokenUnico = [1,2,3,6,8,10,12,13,14,15,16,17,18,19,20,25]      
+EstadosTokenUnico = [1,2,3,6,8,10,12,13,14,15,16,17,18,19,20,25]    
 '''
-Función controladora
+Función para imprimir errores del parser
+Recibe el valor del token que causó error y el tipo de expresió que no pudo formar
+'''
+def markActualError(tokenValue, failedExpression):
+    #Se definen las variables que se van a utilizar como globales (para que no tengan valor local)
+    global lineCounter
+    global lineCumulative
+    print("Error creating "+failedExpression+":")
+    print("Unexpected Token: '"+tokenValue+"' at line "+str(lineCounter+1)+":")    #Imprimir detalles de error
+    print(lineCumulative+"")                                            #Imprimir la línea que contiene el error y el acento circunflejo
+    indicator = ""
+    for i in range(len(lineCumulative)-2):
+        indicator+=" "
+    indicator+="^"
+    print(indicator)
+
+'''
+Función de control
 Recibe un parámetro booleano para indicar si se desea que se impriman los tokens
 '''
 def getToken(imprimir = True):

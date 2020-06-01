@@ -1,0 +1,21 @@
+int sumar(int x){
+    int a;
+    if(x==0){
+        return 0;
+    }
+    else{
+        output(x);
+        x = x-1;
+        a = sumar(x);
+    }
+    return 0;
+}
+
+void main(void)
+{   
+    int i;
+    i =2;
+    i= sumar(5);
+    output(i);
+    
+}

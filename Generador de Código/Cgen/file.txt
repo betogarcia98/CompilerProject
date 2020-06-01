@@ -1,0 +1,66 @@
+.data
+glob: .word 0
+.text
+.globl main
+sumar:
+sw $ra 0($sp)
+addiu $sp $sp -4
+move $fp $sp
+addiu $sp $sp 8
+lw $a0 0($sp)
+sw $a0 -0($fp)
+addiu $sp $sp -4
+addiu $sp $sp -4
+addiu $sp $sp -8
+lw $a0 -0($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 0
+lw $t1 4($sp)
+addiu $sp $sp 4
+beq $a0 $t1 true_branch_0
+false_branch_0:
+lw $a0 -0($fp)
+li $v0 1
+syscall
+lw $a0 -0($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+li $a0 1
+lw $t1 4($sp)
+sub $a0 $t1 $a0
+addiu $sp $sp 4
+sw $a0 -0($fp)
+sw $fp 0($sp)
+addiu $sp $sp -4
+lw $a0 -0($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+jal sumar
+sw $a0 -4($fp)
+b end_if_0
+true_branch_0:
+li $a0 0
+end_if_0:
+li $a0 0
+lw $ra 4($fp)
+addiu $sp $sp 16
+lw $fp 0($sp)
+jr $ra
+main:
+la $t3 glob
+move $fp $sp
+addiu $sp $sp -4
+lw $a0 4($t3)
+li $a0 2
+sw $a0 -0($fp)
+sw $fp 0($sp)
+addiu $sp $sp -4
+li $a0 5
+sw $a0 0($sp)
+addiu $sp $sp -4
+jal sumar
+sw $a0 -0($fp)
+lw $a0 -0($fp)
+li $v0 1
+syscall
