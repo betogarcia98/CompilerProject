@@ -3,6 +3,7 @@ from semantica import *
 f = ""
 ifCounter = 0
 whileCounter = 0
+funName = ""
 
 def getLoc(name,line):
     for scope in range(len(TablaDeSimbolos)):
@@ -20,6 +21,7 @@ def getNode(name,line):
 def recursiveCGen(tree, imprime = True):
     global ifCounter
     global whileCounter
+    global funName
     if tree == None:
         return
     checkChild = True 
@@ -40,6 +42,7 @@ def recursiveCGen(tree, imprime = True):
                 checkChild = False
                 # f.write("START\n")
                 f.write(tree.child[0].str+":\n")
+                funName = tree.child[0].str
                 f.write("sw $ra 0($sp)\n")
                 f.write("addiu $sp $sp -4\n")
                 # f.write("sw $fp 0($sp)\n")
@@ -58,7 +61,7 @@ def recursiveCGen(tree, imprime = True):
                 n = 0
                 while nodo != None:
                     if nodo.decType == DecTipo.VARIABLE:
-                        n += 2
+                        n += 1
                         ls,_ = getLoc(nodo.child[0].str,nodo.child[0].lineno)
                         f.write("lw $a0 0($sp)\n")
                         f.write("sw $a0 -"+str(ls)+"($fp)\n")
@@ -82,8 +85,9 @@ def recursiveCGen(tree, imprime = True):
                 
                 # f.write("END\n")
                 recursiveCGen(tree.child[2])
+                f.write("end_"+funName+":\n")
                 f.write("lw $ra 4($fp)\n")
-                z = 4*n + 8
+                z = 4*n + 8 + spaceNeeded
                 f.write("addiu $sp $sp "+str(z)+"\n")
                 f.write("lw $fp 0($sp)\n")
                 f.write("jr $ra\n")
@@ -283,6 +287,11 @@ def recursiveCGen(tree, imprime = True):
                         f.write("addiu $sp $sp -4\n")
                     aux_tree = aux_tree.sibling         #Mover el nodo auxiliar al siguiente parámetro
                 f.write("jal "+tree.child[0].str+"\n")
+        elif tree.stmtType == StmtTipo.RETURN:
+            checkChild = False
+            recursiveCGen(tree.child[0])
+            f.write("b end_"+funName+"\n")
+            pass
             
             
 

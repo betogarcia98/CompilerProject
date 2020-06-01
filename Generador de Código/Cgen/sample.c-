@@ -14,7 +14,6 @@ int sumar(int x){
 void main(void)
 {   
     int i;
-    i =2;
     i= sumar(5);
     output(i);
     

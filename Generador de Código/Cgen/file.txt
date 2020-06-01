@@ -41,10 +41,13 @@ sw $a0 -4($fp)
 b end_if_0
 true_branch_0:
 li $a0 0
+b end_sumar
 end_if_0:
 li $a0 0
+b end_sumar
+end_sumar:
 lw $ra 4($fp)
-addiu $sp $sp 16
+addiu $sp $sp 20
 lw $fp 0($sp)
 jr $ra
 main:
@@ -52,8 +55,6 @@ la $t3 glob
 move $fp $sp
 addiu $sp $sp -4
 lw $a0 4($t3)
-li $a0 2
-sw $a0 -0($fp)
 sw $fp 0($sp)
 addiu $sp $sp -4
 li $a0 5
