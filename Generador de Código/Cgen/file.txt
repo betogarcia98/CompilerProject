@@ -2,12 +2,11 @@
 glob: .word 0
 .text
 .globl main
-minloc:
+gcd:
 sw $ra 0($sp)
 addiu $sp $sp -4
 move $fp $sp
-addiu $sp $sp 16
-addiu $sp $sp -4
+addiu $sp $sp 12
 lw $a0 0($sp)
 sw $a0 -0($fp)
 addiu $sp $sp -4
@@ -15,242 +14,74 @@ lw $a0 0($sp)
 sw $a0 -4($fp)
 addiu $sp $sp -4
 addiu $sp $sp -4
-addiu $sp $sp -20
-lw $a0 -0($fp)
-sw $a0 -16($fp)
-lw $a0 -0($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
-sw $a0 -12($fp)
-lw $a0 -0($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 1
-lw $t1 4($sp)
-add $a0 $t1 $a0
-addiu $sp $sp 4
-sw $a0 -8($fp)
-start_while_0:
-lw $a0 -8($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
+addiu $sp $sp -8
 lw $a0 -4($fp)
-lw $t1 4($sp)
-addiu $sp $sp 4
-slt $t2 $t1 $a0
-bne $t2 $0 while_0
-b end_while_0
-while_0:
-lw $a0 -8($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
 sw $a0 0($sp)
 addiu $sp $sp -4
-lw $a0 -12($fp)
+li $a0 0
 lw $t1 4($sp)
 addiu $sp $sp 4
-slt $t2 $t1 $a0
-bne $t2 $0 true_branch_0
+beq $a0 $t1 true_branch_0
 false_branch_0:
-b end_if_0
-true_branch_0:
-lw $a0 -8($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
-sw $a0 -12($fp)
-lw $a0 -8($fp)
-sw $a0 -16($fp)
-end_if_0:
-lw $a0 -8($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 1
-lw $t1 4($sp)
-add $a0 $t1 $a0
-addiu $sp $sp 4
-sw $a0 -8($fp)
-b start_while_0
-end_while_0:
-lw $a0 -16($fp)
-b end_minloc
-end_minloc:
-lw $ra 4($fp)
-addiu $sp $sp 40
-lw $fp 0($sp)
-jr $ra
-sort:
-sw $ra 0($sp)
-addiu $sp $sp -4
-move $fp $sp
-addiu $sp $sp 16
-addiu $sp $sp -4
-lw $a0 0($sp)
-sw $a0 -0($fp)
-addiu $sp $sp -4
-lw $a0 0($sp)
-sw $a0 -4($fp)
-addiu $sp $sp -4
-addiu $sp $sp -4
-addiu $sp $sp -20
-lw $a0 -0($fp)
-sw $a0 -8($fp)
-start_while_1:
-lw $a0 -8($fp)
-sw $a0 0($sp)
+sw $fp 0($sp)
 addiu $sp $sp -4
 lw $a0 -4($fp)
 sw $a0 0($sp)
 addiu $sp $sp -4
-li $a0 1
+lw $a0 -0($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+lw $a0 -0($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+lw $a0 -4($fp)
+lw $t1 4($sp)
+div $a0 $t1 $a0
+addiu $sp $sp 4
+sw $a0 0($sp)
+addiu $sp $sp -4
+lw $a0 -4($fp)
+lw $t1 4($sp)
+mul $a0 $t1 $a0
+addiu $sp $sp 4
 lw $t1 4($sp)
 sub $a0 $t1 $a0
 addiu $sp $sp 4
-lw $t1 4($sp)
-addiu $sp $sp 4
-slt $t2 $t1 $a0
-bne $t2 $0 while_1
-b end_while_1
-while_1:
-sw $fp 0($sp)
-addiu $sp $sp -4
-li $a0 0
 sw $a0 0($sp)
 addiu $sp $sp -4
-lw $a0 -8($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-lw $a0 -4($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-jal minloc
-sw $a0 -12($fp)
-lw $a0 -12($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
-sw $a0 -16($fp)
-lw $a0 -8($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
-move $t5 $a0
-lw $a0 -12($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-sw $t5 44($t3)
-sub $t3 $t3 $a0
-lw $a0 -16($fp)
-move $t5 $a0
-lw $a0 -8($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-sw $t5 44($t3)
-sub $t3 $t3 $a0
-lw $a0 -8($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 1
-lw $t1 4($sp)
-add $a0 $t1 $a0
-addiu $sp $sp 4
-sw $a0 -8($fp)
-b start_while_1
-end_while_1:
-end_sort:
+jal gcd
+b end_gcd
+b end_if_0
+true_branch_0:
+lw $a0 -0($fp)
+b end_gcd
+end_if_0:
+end_gcd:
 lw $ra 4($fp)
-addiu $sp $sp 40
+addiu $sp $sp 24
 lw $fp 0($sp)
 jr $ra
 main:
 la $t3 glob
 move $fp $sp
-addiu $sp $sp -4
-lw $a0 56($t3)
-li $a0 0
-sw $a0 -0($fp)
-start_while_2:
-lw $a0 -0($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 10
-lw $t1 4($sp)
-addiu $sp $sp 4
-slt $t2 $t1 $a0
-bne $t2 $0 while_2
-b end_while_2
-while_2:
+addiu $sp $sp -8
+lw $a0 4($t3)
 li $v0 5
 syscall
 move $a0 $v0
-move $t5 $a0
-lw $a0 -0($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-sw $t5 44($t3)
-sub $t3 $t3 $a0
-lw $a0 -0($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 1
-lw $t1 4($sp)
-add $a0 $t1 $a0
-addiu $sp $sp 4
 sw $a0 -0($fp)
-b start_while_2
-end_while_2:
+li $v0 5
+syscall
+move $a0 $v0
+sw $a0 -4($fp)
 sw $fp 0($sp)
 addiu $sp $sp -4
-li $a0 0
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 0
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 10
-sw $a0 0($sp)
-addiu $sp $sp -4
-jal sort
-li $a0 0
-sw $a0 -0($fp)
-start_while_3:
 lw $a0 -0($fp)
 sw $a0 0($sp)
 addiu $sp $sp -4
-li $a0 10
-lw $t1 4($sp)
-addiu $sp $sp 4
-slt $t2 $t1 $a0
-bne $t2 $0 while_3
-b end_while_3
-while_3:
-lw $a0 -0($fp)
-mul $a0 $a0 4
-add $t3 $t3 $a0
-move $t1 $a0
-lw $a0 44($t3)
-sub $t3 $t3 $t1
+lw $a0 -4($fp)
+sw $a0 0($sp)
+addiu $sp $sp -4
+jal gcd
 li $v0 1
 syscall
-lw $a0 -0($fp)
-sw $a0 0($sp)
-addiu $sp $sp -4
-li $a0 1
-lw $t1 4($sp)
-add $a0 $t1 $a0
-addiu $sp $sp 4
-sw $a0 -0($fp)
-b start_while_3
-end_while_3:

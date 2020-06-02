@@ -18,7 +18,7 @@ def getNode(name,line):
                 return nodo
 
 
-def recursiveCGen(tree, imprime = True):
+def recursiveCGen(tree, checkSibling = True):
     global ifCounter
     global whileCounter
     global funName
@@ -251,42 +251,16 @@ def recursiveCGen(tree, imprime = True):
                     if nodo.nombreCampo == tree.child[0].str:
                         paramToCompare = paramToCompare[:nodo.funObj.numParam]
                 aux_tree = tree.child[1]        
-                for param in paramToCompare:
-                    
-                    if param.arrayObj != None:          #Si el parametro debe ser un arreglo
-                        this = SymTabObj("",0,"")
-                        for scope in range(len(TablaDeSimbolos)):
-                            for nodo in TablaDeSimbolos[scope].nodos:
-                                if nodo.nombreCampo == aux_tree.str and aux_tree.lineno in  nodo.lineasDeAparicion:
-                                    this = nodo
-                                    break
-                        # param.memLoc = this.memLoc
-                        # ImprimirTabla()
-                        f.write("li $a0 0\n")
-                        f.write("sw $a0 0($sp)\n")
-                        f.write("addiu $sp $sp -4\n")
-                        
-                    else:                               #Si no se esperaba un arreglo
-                        isGlobal = False
-                        if aux_tree.expType ==  ExpTipo.CONST:
-                            f.write("li $a0 "+aux_tree.val+"\n")
-                        elif aux_tree.expType == ExpTipo.IDENTIFIER:
-                            # print(tree.str,tree.lineno)
-                            ls, scope = getLoc(aux_tree.str,aux_tree.lineno)
-                            if scope == 0:
-                                isGlobal = True
-                            # f.write("here")
-                            if isGlobal:
-                                f.write("lw $a0 "+str(ls)+"($t3)\n")
-                            else:
-                                f.write("lw $a0 -"+str(ls)+"($fp)\n")
-                        f.write("sw $a0 0($sp)\n")
-                        f.write("addiu $sp $sp -4\n")
-                    aux_tree = aux_tree.sibling         #Mover el nodo auxiliar al siguiente parámetro
+                for param in paramToCompare:                                                     
+                    recursiveCGen(aux_tree,False)
+                    f.write("sw $a0 0($sp)\n")
+                    f.write("addiu $sp $sp -4\n")
+                    aux_tree = aux_tree.sibling         
                 f.write("jal "+tree.child[0].str+"\n")
         elif tree.stmtType == StmtTipo.RETURN:
             checkChild = False
-            recursiveCGen(tree.child[0])
+            for child in tree.child:
+                recursiveCGen(child)
             f.write("b end_"+funName+"\n")
             pass
             
@@ -298,7 +272,8 @@ def recursiveCGen(tree, imprime = True):
     if checkChild:
         for child in tree.child:
             recursiveCGen(child)
-    recursiveCGen(tree.sibling)
+    if checkSibling:
+        recursiveCGen(tree.sibling)
 
 
         
