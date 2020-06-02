@@ -103,6 +103,7 @@ def recursiveCGen(tree, imprime = True):
             if tree.child[0].expType == ExpTipo.ARREGLO:
                 node = getNode(tree.child[0].child[0].str,tree.lineno)
                 isGlobal = True
+                recursiveCGen(tree.child[1])
                 if tree.child[0].child[1].expType == ExpTipo.CONST:
                     ls = node.memLoc+(4*int(tree.child[0].child[1].val))
                     
@@ -111,7 +112,7 @@ def recursiveCGen(tree, imprime = True):
                     recursiveCGen(tree.child[0].child[1])
                     ls = node.memLoc
                     f.write("mul $a0 $a0 4\n")
-                    f.write("add $t3 $t3 $a0")
+                    f.write("add $t3 $t3 $a0\n")
                     f.write("sw $t5 "+str(ls)+"($t3)\n")
                     f.write("sub $t3 $t3 $a0\n")
                     shouldStore = False
@@ -119,7 +120,7 @@ def recursiveCGen(tree, imprime = True):
                 ls, scope = getLoc(tree.child[0].str,tree.child[0].lineno)
                 if scope == 0:
                     isGlobal = True
-            recursiveCGen(tree.child[1])
+                recursiveCGen(tree.child[1])
             if shouldStore:
                 if isGlobal:
                     f.write("sw $a0 "+str(ls)+"($t3)\n")
@@ -259,7 +260,7 @@ def recursiveCGen(tree, imprime = True):
                                 if nodo.nombreCampo == aux_tree.str and aux_tree.lineno in  nodo.lineasDeAparicion:
                                     this = nodo
                                     break
-                        param.memLoc = this.memLoc
+                        # param.memLoc = this.memLoc
                         # ImprimirTabla()
                         f.write("li $a0 0\n")
                         f.write("sw $a0 0($sp)\n")
@@ -314,5 +315,6 @@ def codeGen(tree,file):
     recursiveCGen(tree)
     # f.write('aios mundo')
     f.close()
+    ImprimirTabla()
     pass
 

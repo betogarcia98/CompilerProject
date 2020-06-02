@@ -375,6 +375,7 @@ def checkNode(tree):
                 for scope in range(len(TablaDeSimbolos)):
                     if TablaDeSimbolos[scope].funcionDueña == tree.child[0].str:
                         paramToCompare = TablaDeSimbolos[scope].nodos
+                        break
                 for nodo in TablaDeSimbolos[0].nodos:
                     if nodo.nombreCampo == tree.child[0].str:
                         paramToCompare = paramToCompare[:nodo.funObj.numParam]
@@ -399,6 +400,8 @@ def checkNode(tree):
                         if param.arrayObj != None:          #Si el parametro debe ser un arreglo
                             if this.arrayObj == None:       #Y no lo es, mandar mensaje de error
                                 errorGenerico("Se esperaba arreglo",aux_tree.str,aux_tree.lineno)
+                            
+                            this.memLoc = param.memLoc
                         else:                               #Si no se esperaba un arreglo
                             if this.arrayObj != None:       #Y si es, mandar mensaje de error
                                 errorGenerico("No se esperaba arreglo",aux_tree.str,aux_tree.lineno)
