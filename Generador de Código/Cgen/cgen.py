@@ -1,33 +1,48 @@
-from globalTypes import *                       #Importar para el correcto funcionamiento del Parser
+'''
+Alberto García Caballero
+A01364120
+'''
+from globalTypes import *                       
 from semantica import *
-f = ""
-ifCounter = 0
-whileCounter = 0
-funName = ""
-
+f = ""                  #Variable para escribir en el archivo
+ifCounter = 0           #Variable para el control en la creación de Ifs
+whileCounter = 0        #Variable para el control en la creación de Whiles
+funName = ""            #Variable para el control en el término de Funciones
+'''
+Funcion para obtener la localización en memoria que le corresponde a un nodo de la tabla de símbolos,
+recibe como parámetros el nombre del campo a buscar y el número de línea
+'''
 def getLoc(name,line):
     for scope in range(len(TablaDeSimbolos)):
         for nodo in TablaDeSimbolos[scope].nodos:
             if nodo.nombreCampo == name and line in  nodo.lineasDeAparicion:
                 return nodo.memLoc, scope
-
+'''
+Funcion para obtener el objeto completo de la tabla de símbolos,recibe como parámetros el nombre 
+del campo a buscar y el número de línea
+'''
 def getNode(name,line):
     for scope in range(len(TablaDeSimbolos)):
         for nodo in TablaDeSimbolos[scope].nodos:
             if nodo.nombreCampo == name and line in  nodo.lineasDeAparicion:
                 return nodo
 
-
+'''
+Función para la generación de código, recibe de forma recursiva el AST, (el nodo inicial o sus hijos 
+o hermanos de un determinado nodo), y con base en el tipo de nodo, genera el código necesario.
+Recibe como parámetros el nodo del que se debe generar código y un parámetro opcional que indica si 
+el nodo debe realizar generación de código en sus hermanos, o no.
+'''
 def recursiveCGen(tree, checkSibling = True):
-    global ifCounter
-    global whileCounter
-    global funName
-    if tree == None:
+    global ifCounter                        #Variable para el flujo de Ifs
+    global whileCounter                     #Variable para el flujo de Whiles
+    global funName                          #Variable para el control de la etiqueta en los return
+    if tree == None:                        #Si el nodo es nulo, detener la ejecución, (hijo o hermano de hoja)
         return
-    checkChild = True 
-    if tree.nType == TipoNodo.DEC:
-        if tree.decType == DecTipo.FUNCION:
-            if tree.child[0].str == "main":
+    checkChild = True                       #Por defecto, generar el código de los hijos
+    if tree.nType == TipoNodo.DEC:          #Si es una declaración
+        if tree.decType == DecTipo.FUNCION:     #Si es una función
+            if tree.child[0].str == "main":     #Código para la función main
                 f.write("main:\n")
                 f.write("la $t3 glob\n")
                 f.write("move $fp $sp\n")
@@ -39,13 +54,17 @@ def recursiveCGen(tree, checkSibling = True):
                 print("SN:",spaceNeeded)
                 f.write("addiu $sp $sp -"+str(spaceNeeded)+"\n")
             else:
+                '''
+                Código para cualquier otra función, guarda la return address, el control link y asigna los valores
+                de los parámetros a su lugar correspondiente en las variables locales, después se genera el código
+                de lo que contiene la función, y después se devuelve el $fp y el $sp al lugar en el que estaban 
+                antes de llamara la función.
+                '''
                 checkChild = False
-                # f.write("START\n")
                 f.write(tree.child[0].str+":\n")
                 funName = tree.child[0].str
                 f.write("sw $ra 0($sp)\n")
                 f.write("addiu $sp $sp -4\n")
-                # f.write("sw $fp 0($sp)\n")
                 f.write("move $fp $sp\n")
                 numeroHijos = -1
                 nodo = tree.child[1]
@@ -54,7 +73,6 @@ def recursiveCGen(tree, checkSibling = True):
                         break
                     numeroHijos+=1
                     nodo = nodo.sibling
-                print("Size:",numeroHijos)
                 nodo = tree.child[1]
                 move = 4*(numeroHijos+1)+4
                 f.write("addiu $sp $sp "+str(move)+"\n")
@@ -69,21 +87,14 @@ def recursiveCGen(tree, checkSibling = True):
                     else:
                         f.write("addiu $sp $sp -4\n")
                         n += 1
-                    # numeroHijos-=1
                     nodo = nodo.sibling
-                # f.write("addiu $sp $sp 4\n")
-                print("N:",n)
-                # f.write("move $sp $fp\n")
                 spaceNeeded = 0
                 for scope in TablaDeSimbolos:
                     if scope.funcionDueña == tree.child[0].str:
                         spaceNeeded+= scope.memLocScope
                         break
-                
                 f.write("addiu $sp $sp -4\n")
                 f.write("addiu $sp $sp -"+str(spaceNeeded)+"\n")
-                
-                # f.write("END\n")
                 recursiveCGen(tree.child[2])
                 f.write("end_"+funName+":\n")
                 f.write("lw $ra 4($fp)\n")
@@ -91,14 +102,20 @@ def recursiveCGen(tree, checkSibling = True):
                 f.write("addiu $sp $sp "+str(z)+"\n")
                 f.write("lw $fp 0($sp)\n")
                 f.write("jr $ra\n")
-        else:
+        else:                                   #Si no es una función, no recorrer a sus hijos
             checkChild = False
             pass
-            
-    elif tree.nType == TipoNodo.EXP:  
-        isGlobal = False
-        shouldStore = True
-        if tree.expType == ExpTipo.ASSIGN:
+    elif tree.nType == TipoNodo.EXP:                        #Si el nodo es de tipo expresión 
+        isGlobal = False                                    #Por defecto asumir que las variables son locales
+        shouldStore = True 
+        '''
+        Si el nodo es un assign
+        Establecer que no se deben de revisar los hijos del nodo
+        Después generar el código del lado derecho del assign
+        Ubicar la localización de la variable del lado izquierdo, ya sea arreglo o no
+        Generar el código para asignar lo que se generó del lado derecho
+        '''
+        if tree.expType == ExpTipo.ASSIGN:      
             checkChild = False
             if tree.child[0].expType == ExpTipo.ARREGLO:
                 node = getNode(tree.child[0].child[0].str,tree.lineno)
@@ -126,18 +143,28 @@ def recursiveCGen(tree, checkSibling = True):
                     f.write("sw $a0 "+str(ls)+"($t3)\n")
                 else:
                     f.write("sw $a0 -"+str(ls)+"($fp)\n")
+            '''
+            Si el nodo es una constante, cargar el contenido del nodo al acumulador
+            '''
         elif tree.expType ==  ExpTipo.CONST:
             f.write("li $a0 "+tree.val+"\n")
+            '''
+            Si el nodo es un identificador, ubicar el lugar de la memoria donde se tien que guardar
+            Y guardarlo dependiendo si es global o local
+            '''
         elif tree.expType == ExpTipo.IDENTIFIER:
-            # print(tree.str,tree.lineno)
             ls, scope = getLoc(tree.str,tree.lineno)
             if scope == 0:
                 isGlobal = True
-            # f.write("here")
             if isGlobal:
                 f.write("lw $a0 "+str(ls)+"($t3)\n")
             else:
                 f.write("lw $a0 -"+str(ls)+"($fp)\n")
+            '''
+            Si el nodo es una operación, generar el contenido de un lado de la operación,
+            Después mover el resultado al stack, generar el código para el otro lado de la
+            operación y finalmente evaluar la operación usando el stack y un regustro temporal.
+            '''
         elif tree.expType == ExpTipo.OPERATION:
             checkChild = False
             recursiveCGen(tree.child[0])
@@ -145,7 +172,6 @@ def recursiveCGen(tree, checkSibling = True):
             f.write("addiu $sp $sp -4\n")
             recursiveCGen(tree.child[1])
             f.write("lw $t1 4($sp)\n")
-            # print(tree.op)
             if tree.op == TokenType.PLUS:
                 f.write("add $a0 $t1 $a0\n")
             elif tree.op == TokenType.LESS:
@@ -155,9 +181,14 @@ def recursiveCGen(tree, checkSibling = True):
             elif tree.op == TokenType.DIV:
                 f.write("div $a0 $t1 $a0\n")
             f.write("addiu $sp $sp 4\n")
+            '''
+            Si el nodo es un arreglo
+            Calcular el offset con base en el indice del arreglo
+            Dependiendo de si lo que tiene dentro es una constante o no
+
+            '''
         elif tree.expType == ExpTipo.ARREGLO:
             checkChild = False
-            # f.write("#Aqui1\n")
             node = getNode(tree.child[0].str,tree.lineno)
             if tree.child[1].expType == ExpTipo.CONST:
                 index = tree.child[1].val    
@@ -171,10 +202,15 @@ def recursiveCGen(tree, checkSibling = True):
                 ls,_ = getLoc(tree.child[0].str,tree.lineno)
                 f.write("lw $a0 "+str(ls)+"($t3)\n")
                 f.write("sub $t3 $t3 $t1\n")
-                # f.write("sub $t3 $t3 "+str(ls)+"\n")
-            # f.write("#Aqui2\n")
-                
-    elif tree.nType == TipoNodo.STMT:
+    
+    elif tree.nType == TipoNodo.STMT:                       #si el nodo es un statement
+        '''
+        Si el nodo es un if o un while
+        Primero generar el nombre del las etiquetas que se usarán en caso de que sea necesario hacer branch
+        Después generar el código de la condición, establecer a dónde tiene que hacer branc en caso de ser verdadera
+        Generar después la parte que se ejecuta en caso de que la condición no se cumpla
+        Generar las instrucciónes del final del if o while, si es while especificar que regrese al inicio
+        '''
         if tree.stmtType == StmtTipo.IF or tree.stmtType == StmtTipo.WHILE:
             checkChild = False
             if tree.stmtType == StmtTipo.IF:
@@ -229,6 +265,15 @@ def recursiveCGen(tree, checkSibling = True):
                 recursiveCGen(tree.child[1])
                 f.write("b start_while_"+str(localCounter)+"\n")
                 f.write("end_while_"+str(localCounter)+":\n")
+            '''
+            Si el nodo es una llamada
+            Establecer que no se genere código para los hijos
+            Después verificar los casos especiales (input y output) donde se hacen syscall
+            Si no fue un caso especial, traer de la tabla de símbolos el número de parámetros esperados
+            Guardar la posición actal del $fp en el stack
+            Generar el código para guardar el valor de cada parámetro en el stack
+            Después hacer un jal hacia la etiqueta de la función
+            '''
         elif tree.stmtType == StmtTipo.CALL:
             checkChild = False
             if tree.child[0].str == "output":    
@@ -257,39 +302,41 @@ def recursiveCGen(tree, checkSibling = True):
                     f.write("addiu $sp $sp -4\n")
                     aux_tree = aux_tree.sibling         
                 f.write("jal "+tree.child[0].str+"\n")
+            '''
+            Si el nodo es un return, evaluar loq ue tenga del lado derecho para cargarlo al acumulador
+            Y hacer un branch incindicional a la etiqueta que indica el final de la función 
+            '''
         elif tree.stmtType == StmtTipo.RETURN:
             checkChild = False
             for child in tree.child:
                 recursiveCGen(child)
             f.write("b end_"+funName+"\n")
-            pass
-            
-            
-
-
-
-            
+        '''
+        Recorrer de forma recursiva a los hijos y los hermanos del nodo, solo en caso de que se deba hacer
+        '''
     if checkChild:
         for child in tree.child:
             recursiveCGen(child)
     if checkSibling:
         recursiveCGen(tree.sibling)
 
+'''
+Función inicial para la generación de código
+Recibe el AST y el nombre del archivo al que se va a escribir
+Abre el archivo en formato de escritura, escribe las instrucciones de Spim iniciales
+Genera el código del AST
+Escribe las instrucciones finales de Spim
 
-        
-
+'''
 def codeGen(tree,file):
     global f
-    print("Working...")
-    # initializeFile(file)
     f = open (file,'w')
     f.write(".data\n")
     f.write("glob: .word 0\n")
     f.write(".text\n")
     f.write(".globl main\n")    
     recursiveCGen(tree)
-    # f.write('aios mundo')
+    f.write("li $v0 10\n")
+    f.write("syscall\n")
     f.close()
     ImprimirTabla()
-    pass
-
